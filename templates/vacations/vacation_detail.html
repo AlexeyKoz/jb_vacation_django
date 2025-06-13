@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ vacation.country.name }} - Vacation Details{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <!-- Vacation Image -->
+        <div class="col-md-6 mb-4">
+            {% if vacation.image %}
+            <img src="{{ vacation.image.url }}" class="img-fluid rounded shadow" alt="{{ vacation.country.name }}">
+            {% else %}
+            <div class="bg-light rounded shadow d-flex align-items-center justify-content-center"
+                style="height: 400px;">
+                <i class="bi bi-image text-muted" style="font-size: 5rem;"></i>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Vacation Details -->
+        <div class="col-md-6">
+            <h1 class="mb-4">{{ vacation.country.name }}</h1>
+
+            <div class="mb-4">
+                <h5 class="text-muted mb-3">Trip Details</h5>
+                <div class="d-flex align-items-center mb-2">
+                    <i class="bi bi-calendar-event me-2"></i>
+                    <span>{{ vacation.start_date|date:"F d, Y" }} - {{ vacation.end_date|date:"F d, Y" }}</span>
+                </div>
+                <div class="d-flex align-items-center mb-2">
+                    <i class="bi bi-clock me-2"></i>
+                    <span>{{ vacation.duration }} days</span>
+                </div>
+                <div class="d-flex align-items-center mb-2">
+                    <i class="bi bi-currency-dollar me-2"></i>
+                    <span class="h4 mb-0">${{ vacation.price }}</span>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <h5 class="text-muted mb-3">Description</h5>
+                <p>{{ vacation.description }}</p>
+            </div>
+
+            <div class="d-flex gap-3 mb-4">
+                {% if user.is_authenticated %}
+                <form method="post" action="{% url 'vacations:vacation_like' vacation.id %}" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit"
+                        class="btn {% if is_liked %}btn-danger{% else %}btn-outline-danger{% endif %}">
+                        <i class="bi bi-heart-fill me-2"></i>
+                        {% if is_liked %}Unlike{% else %}Like{% endif %}
+                        <span class="badge bg-light text-dark ms-2">{{ vacation.likes.count }}</span>
+                    </button>
+                </form>
+                {% if user.is_staff %}
+                <a href="{% url 'vacations:vacation_update' vacation.id %}" class="btn btn-outline-primary">
+                    <i class="bi bi-pencil me-2"></i>Edit
+                </a>
+                <a href="{% url 'vacations:vacation_delete' vacation.id %}" class="btn btn-outline-danger">
+                    <i class="bi bi-trash me-2"></i>Delete
+                </a>
+                {% endif %}
+                <a href="{% url 'vacations:coming_soon' %}" class="btn btn-success">
+                    <i class="bi bi-calendar-check me-2"></i>Reserve Vacation
+                </a>
+                {% else %}
+                <a href="{% url 'accounts:login' %}" class="btn btn-outline-primary">
+                    <i class="bi bi-box-arrow-in-right me-2"></i>Sign in to like
+                </a>
+                <a href="{% url 'accounts:login' %}" class="btn btn-outline-success">
+                    <i class="bi bi-calendar-check me-2"></i>Sign in to reserve
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
